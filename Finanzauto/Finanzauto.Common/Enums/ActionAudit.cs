@@ -2,8 +2,8 @@
 {
     public enum ActionAudit
     {
-        INSERT = 1,
-        UPDATE = 2,
-        DELETE = 3
+        Creado = 1,
+        Actualizado = 2,
+        Eliminar = 3
     }
 }

@@ -20,5 +20,6 @@ namespace Finanzauto.Domain.Entities
 
         [Required]
         public UserType UserType { get; set; }
+        public ICollection<VehicleAudit> VehicleAudits { get; set; }
     }
 }

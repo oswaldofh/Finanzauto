@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Finanzauto.Common.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Finanzauto.Domain.DTOs
 {
@@ -33,6 +29,7 @@ namespace Finanzauto.Domain.DTOs
         [MaxLength(20, ErrorMessage = "El campo {0} no puede tener mas de {1} carácteres")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public string Document { get; set; }
+        public UserType UserType { get; set; }
 
     }
 }

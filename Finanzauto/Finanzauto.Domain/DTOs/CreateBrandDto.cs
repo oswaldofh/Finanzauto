@@ -2,7 +2,7 @@
 
 namespace Finanzauto.Domain.DTOs
 {
-    public class CreateCityDto
+    public class CreateBrandDto
     {
         [Display(Name = "Ciudad"),]
         [MaxLength(100, ErrorMessage = "El campo {0} debe tener maximo {1} caracteres")]

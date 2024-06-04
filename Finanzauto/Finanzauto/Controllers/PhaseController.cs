@@ -12,17 +12,17 @@ using System.Net;
 
 namespace Finanzauto.Controllers
 {
-    [Route("cities")]
+    [Route("phases")]
     [ApiController]
-   // [Authorize(Roles = "Admin")]
-    [AllowAnonymous]
-    public class CityController : ControllerBase
+    [Authorize(Roles = "Admin")]
+    //[AllowAnonymous]
+    public class PhaseController : ControllerBase
     {
-        protected readonly ICityRepository _repository;
+        protected readonly IPhaseRepository _repository;
         protected readonly IMapper _mapper;
         protected ResponseApi _response;
 
-        public CityController(ICityRepository repository, IMapper mapper)
+        public PhaseController(IPhaseRepository repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
@@ -39,16 +39,10 @@ namespace Finanzauto.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var cities = await _repository.GetCities();
-            if (cities.IsNullOrEmpty()  )
-            {
-                _response.StatusCode = HttpStatusCode.NotFound;
-                _response.IsSuccess = false;
-                _response.Messages.Add("No existen registros guardados");
-                return BadRequest(_response);
-            }
+            var data = await _repository.GetAll();
+            
 
-            return Ok(cities);
+            return Ok(data);
         }
 
         /// <summary>
@@ -62,14 +56,14 @@ namespace Finanzauto.Controllers
         [HttpGet("{id:int}", Name = "GetCityById")]
         public async Task<IActionResult> GetCityById(int id)
         {
-            var data = await _repository.GetCity(id);
+            var data = await _repository.Get(id);
 
             if (data == null)
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
                 _response.Messages.Add("No existe un registro con ese id");
-                return BadRequest(_response);
+                return NotFound(_response);
             }
 
             _response.StatusCode = HttpStatusCode.OK;
@@ -89,15 +83,15 @@ namespace Finanzauto.Controllers
         [HttpGet("{name}", Name = "GetCityByName")]
         public async Task<IActionResult> GetCityByName(string name)
         {
-            var city = await _repository.GetCity(name);
-            if (city == null)
+            var data = await _repository.GetName(name);
+            if (data == null)
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
                 _response.Messages.Add("No existe un registro con ese nombre");
-                return BadRequest(_response);
+                return NotFound(_response);
             }
-            var cityDto = _mapper.Map<CityDto>(city);
+            var cityDto = _mapper.Map<PhaseDto>(data);
 
             _response.StatusCode = HttpStatusCode.OK;
             _response.IsSuccess = true;
@@ -117,7 +111,7 @@ namespace Finanzauto.Controllers
         /// <response code="401">No tiene autorizacion para realizar la solicitud</response>
         /// <response code="500">Se ha producido un error interno en el servidor</response>
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateCityDto model)
+        public async Task<IActionResult> Create([FromBody] CreatePhaseDto model)
         {
 
             if (!ModelState.IsValid || model == null)
@@ -131,14 +125,14 @@ namespace Finanzauto.Controllers
 
             try
             {
-                var city = _mapper.Map<City>(model);
+                var data = _mapper.Map<Phase>(model);
 
-                await _repository.SaveCity(city);
+                await _repository.Save(data);
 
                 _response.StatusCode = HttpStatusCode.Created;
                 _response.IsSuccess = true;
                 _response.Messages.Add("se guardo el registro correctamente");
-                _response.Result = city;
+                _response.Result = data;
 
                 return Ok(_response);
 
@@ -173,7 +167,7 @@ namespace Finanzauto.Controllers
         /// <response code="500">Se ha producido un error interno en el servidor</response>
         // [Authorize(Roles = "admin")]
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] CityDto model)
+        public async Task<IActionResult> Update([FromBody] PhaseDto model)
         {
             if (!ModelState.IsValid)
             {
@@ -183,25 +177,25 @@ namespace Finanzauto.Controllers
                 return BadRequest(_response);
             }
 
-            var exist = await _repository.ExistCity(model.Id);
+            var exist = await _repository.Exist(model.Id);
             if (!exist)
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
                 _response.Messages.Add($"No existe un registro con el id {model.Id}");
-                return BadRequest(_response);
+                return NotFound(_response);
             }
 
             try
             {
-                var city = _mapper.Map<City>(model);
+                var data = _mapper.Map<Phase>(model);
 
-                await _repository.UpdateCity(city);
+                await _repository.Update(data);
 
                 _response.StatusCode = HttpStatusCode.Created;
                 _response.IsSuccess = true;
                 _response.Messages.Add("se actualizo el registro correctamente");
-                _response.Result = city;
+                _response.Result = data;
 
                 return Ok(_response);
 
@@ -236,17 +230,17 @@ namespace Finanzauto.Controllers
         public async Task<IActionResult> Delete(int id)
         {
 
-            var city = await _repository.ExistCity(id);
-            if (!city)
+            var data = await _repository.Exist(id);
+            if (!data)
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
                 _response.Messages.Add($"No existe un registro con el id {id}");
-                return BadRequest(_response);
+                return NotFound(_response);
             }
 
 
-            var deleted = await _repository.DeleteCity(id);
+            var deleted = await _repository.Delete(id);
             if (!deleted)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;

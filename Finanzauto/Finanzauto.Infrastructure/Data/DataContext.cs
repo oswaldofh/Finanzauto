@@ -9,21 +9,26 @@ namespace Finanzauto.Infrastructure.Data
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
         }
-        public DbSet<City> Cities { get; set; }
+
+        public DbSet<Brand> Brands { get; set; }
+        public DbSet<Phase> Phases { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
+        public DbSet<VehiclePhoto> VehiclePhotos { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<VehicleAudit> VehicleAudits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<City>().HasIndex(c => c.Name).IsUnique();
-            ModelConfig(modelBuilder);
+            modelBuilder.Entity<Phase>().HasIndex(c => c.Name).IsUnique();
+            modelBuilder.Entity<Brand>().HasIndex(c => c.Name).IsUnique();
+            modelBuilder.Entity<Vehicle>().HasIndex(c => c.Plate).IsUnique();
+            modelBuilder.Entity<VehiclePhoto>();
+            modelBuilder.Entity<Client>();
+            modelBuilder.Entity<VehicleAudit>();
+
         }
 
-        private void ModelConfig(ModelBuilder builder)
-        {
-            var seedDb = new SeedDb();
-            seedDb.AddCity(builder.Entity<City>());
-        }
-    
     }
 }

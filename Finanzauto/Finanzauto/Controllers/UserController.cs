@@ -11,7 +11,7 @@ using System.Net;
 
 namespace Finanzauto.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("users")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -68,18 +68,19 @@ namespace Finanzauto.Controllers
             }
         }
 
-        //[Authorize(Roles = "admin")]
-        [AllowAnonymous]
+
+
         /// <summary>
         /// Añade un registro
         /// </summary>
-        /// <param name="model">createCityDto</param>
+        /// <param name="model">createUserDto</param>
         /// <returns>Retorna el registro creado</returns>
         /// <response code="201">Se ha creado correctamente un nuevo registro</response>
         /// <response code="400">Si la solicitud es incorrecta</response> 
         /// <response code="401">No tiene autorizacion para realizar la solicitud</response>
         /// <response code="500">Se ha producido un error interno en el servidor</response>
         [HttpPost("CreateUser")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -108,7 +109,6 @@ namespace Finanzauto.Controllers
             user.UserName = model.Email;
             user.UserType = UserType.Admin;
 
-
             IdentityResult result = await _userRepository.AddUserAsync(user, model.Password);
 
             if (result != IdentityResult.Success)
@@ -131,6 +131,22 @@ namespace Finanzauto.Controllers
             _response.Messages.Add($"Usuario creado correctamente {user.Email}");
             _response.Result = userDto;
             return Ok(_response);
+
+        }
+
+        /// <summary>
+        /// Permite cerrar sesión a un usuario
+        /// </summary>
+        /// <response code="204">Si se cierra la sesión</response>
+        /// <response code="401">No tiene autorizacion para realizar la solicitud</response>
+        /// <response code="500">Se ha producido un error interno en el servido</response> 
+        [HttpGet]
+        [Route("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _userRepository.LogoutAsync();
+
+            return Ok();
 
         }
 

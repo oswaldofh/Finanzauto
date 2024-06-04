@@ -46,7 +46,7 @@ namespace Finanzauto.Domain.Tokens
                 _configuration["Tokens:Issuer"],
                 _configuration["Tokens:Audience"],
                 claims,
-                expires: DateTime.UtcNow.AddMinutes(15), // 5 SE CONTROLA LA DURACION DEL TOKEN EN DIAS,HORAS,MINUTOS ETC
+                expires: DateTime.UtcNow.AddDays(2), //  SE CONTROLA LA DURACION DEL TOKEN EN DIAS,HORAS,MINUTOS ETC
                 signingCredentials: credentials
             );
 

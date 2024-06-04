@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Finanzauto.Common.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Finanzauto.Domain.DTOs
 {

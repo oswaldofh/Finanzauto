@@ -15,10 +15,14 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+/*string connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ??
+    builder.Configuration.GetConnectionString("ConexionSqlServer");*/
+string connectionString =builder.Configuration.GetConnectionString("ConexionSqlServer");
+
 builder.Services.AddDbContext<DataContext>(o =>
 {
     //CADENA DE CONEXION
-    o.UseSqlServer(builder.Configuration.GetConnectionString("ConexionSqlServer"));
+    o.UseSqlServer(connectionString);
 });
 
 //TODO: HACER LOS PASSWORD MAS SEGURO
@@ -42,14 +46,17 @@ builder.Services.AddIdentity<User, IdentityRole>(cfg =>
 }).AddDefaultTokenProviders()//SE AGREGA POR DEFECTO EL TOKEN
   .AddEntityFrameworkStores<DataContext>();
 
-builder.Services.AddScoped<ICityRepository, CityRepository>();
+builder.Services.AddScoped<IBrandRepository, BrandRepository>();
+builder.Services.AddScoped<IPhaseRepository, PhaseRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICreateToken, CreateToken>();
 builder.Services.AddScoped<IUploadFileRepository, UploadFileRepository>();
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddTransient<SeedDb>();
 
 //PARA ACCEDER A LA URL DE APLICACION
 builder.Services.AddHttpContextAccessor();
-
 
 // Adding Authentication  
 builder.Services.AddAuthentication(options =>
@@ -78,7 +85,6 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAutoMapper(typeof(FinanzautoMapper));
 
 //SE HABILITAN LOS CORS
-//builder.Services.AddCors();
 builder.Services.AddCors(o =>
 {
     o.AddPolicy("AllowSpecificOrigin",
@@ -130,15 +136,21 @@ builder.Services.AddSwaggerGen(c =>
 
 
 var app = builder.Build();
+//ESTA FUNCION REALIZA LA INYECCION MANUAL DEL SEEDDB
+SeedData(app);
+void SeedData(WebApplication app)
+{
+    IServiceScopeFactory? scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+
+    using (IServiceScope? scope = scopedFactory.CreateScope())
+    {
+        SeedDb? service = scope.ServiceProvider.GetService<SeedDb>();
+        service.SeedAsync().Wait();
+    }
+}
 
 //HABILITAR LOS CORS PARA ACCEDER A LA API
-app.UseCors("AllowSpecificOrigin"); // Usa la política que definiste
-/*app.UseCors(o =>
-{
-    o.WithOrigins("http://localhost:3001/");
-    o.AllowAnyMethod();
-    o.AllowAnyHeader();
-});*/
+app.UseCors("AllowSpecificOrigin");
 
 app.UseStaticFiles();
 if (app.Environment.IsDevelopment())
